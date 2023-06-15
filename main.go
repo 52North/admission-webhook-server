@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/liangrog/admission-webhook-server/pkg/admission/podnodesselector"
+	"github.com/liangrog/admission-webhook-server/pkg/admission/podtolerationrestriction"
 	"github.com/liangrog/admission-webhook-server/pkg/utils"
 )
 
@@ -45,4 +46,5 @@ func main() {
 // Register all admission handlers
 func registerAllHandlers(mux *http.ServeMux) {
 	podnodesselector.Register(mux)
+	podtolerationrestriction.Register(mux)
 }

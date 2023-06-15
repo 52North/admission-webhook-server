@@ -30,7 +30,13 @@ spec:
           value: {{ .Values.podNodesSelectorPathOverride | quote }}
         {{- end }}
         - name: POD_NODES_SELECTOR_CONFIG
-          value: {{ .Values.podNodesSelectorConfig | quote}}
+          value: {{ .Values.podNodesSelectorConfig | quote }}
+        {{- if .Values.podTolerationRestrictionPathOverride }}
+        - name: POD_TOLERATION_RESTRICTION_PATH
+          value: {{ .Values.podTolerationRestrictionPathOverride | quote }}
+        {{- end }}
+        - name: POD_TOLERATION_RESTRICTION_CONFIG
+          value: {{ .Values.podTolerationRestrictionConfig | quote }}
         ports:
         - name: https
           containerPort: 8443
