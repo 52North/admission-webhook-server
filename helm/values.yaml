@@ -32,6 +32,6 @@ replicas: 1
 strategy: 
   type: RollingUpdate
 
-image: liangrog/admission-webhook-server
+image: autermann/admission-webhook-server
 imageTag: latest
 imagePullPolicy: Always 

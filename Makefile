@@ -1,7 +1,7 @@
 # Makefile
 
 APPNAME=admitCtlr
-IMAGE_NAME=liangrog/admission-webhook-server
+IMAGE_NAME=autermann/admission-webhook-server
 
 DOCKERFILE=Dockerfile
 
