@@ -32,6 +32,19 @@ replicas: 1
 strategy: 
   type: RollingUpdate
 
+nodeSelector:
+  52north.org/context: demo-gaia-x
+
+tolerations:
+- operator: Equal
+  effect: NoSchedule
+  key: 52north.org/reserved-for
+  value: demo-gaia-x
+- operator: Equal
+  effect: NoExecute
+  key: 52north.org/reserved-for
+  value: demo-gaia-x
+
 image: autermann/admission-webhook-server
 imageTag: latest
 imagePullPolicy: Always 

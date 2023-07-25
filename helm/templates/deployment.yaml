@@ -17,6 +17,14 @@ spec:
       labels:
 {{- include "helper.labels" . | indent 8 }}
     spec:
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      nodeSelector:
+{{ toYaml .Values.tolerations | indent 8 }}
+      {{- end }}
       containers:
       - name: {{ template "helper.fullname" . }}
         image: "{{ .Values.image }}:{{ .Values.imageTag }}"
