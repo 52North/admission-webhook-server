@@ -15,9 +15,16 @@ nameOverride: admission-webhook-server
 #
 # Examples:
 #   devel: node-role.kubernetes.io/development=true, beta.kubernetes.io/instance-type=t3.large
-podNodesSelectorConfig: 
+podNodesSelectorConfig: |
+  demo-gaia-x: 52north.org/context=demo-gaia-x
 
-podTolerationRestrictionConfig:
+podTolerationRestrictionConfig: |
+  {
+    "demo-gaia-x": [
+      {"operator": "Equal", "effect": "NoSchedule","key": "52north.org/reserved-for", "value": "demo-gaia-x" }, 
+      {"operator": "Equal", "effect": "NoExecute", "key": "52north.org/reserved-for", "value": "demo-gaia-x" }
+    ]
+  }
 
 #podTolerationRestrictionPathOverride:
 

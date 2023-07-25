@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "helper.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{- include "helper.labels" . | indent 4 }}
+data:
+  podTolerationRestrictionConfig: |
+{{ .Values.podTolerationRestrictionConfig | indent 4 }}
+  podNodeSelectorConfig: |
+{{ .Values.podNodesSelectorConfig | indent 4}}
