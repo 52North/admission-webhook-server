@@ -13,8 +13,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/liangrog/admission-webhook-server/pkg/admission/admit"
-	"github.com/liangrog/admission-webhook-server/pkg/utils"
+	"github.com/autermann/admission-webhook-server/pkg/admission/admit"
+	"github.com/autermann/admission-webhook-server/pkg/utils"
 	admissionV1 "k8s.io/api/admission/v1"
 	coreV1 "k8s.io/api/core/v1"
 	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"

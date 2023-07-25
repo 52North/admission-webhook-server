@@ -13,7 +13,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v1
         with:
-          go-version: 1.13
+          go-version: 1.20
       - name: Check out code
         uses: actions/checkout@v1
       - name: build binary and image
@@ -22,10 +22,10 @@ jobs:
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - name: tag image
-        run: docker tag liangrog/admission-webhook-server:latest liangrog/admission-webhook-server:${{ steps.get_version.outputs.VERSION }}
+        run: docker tag autermann/admission-webhook-server:latest autermann/admission-webhook-server:${{ steps.get_version.outputs.VERSION }}
       - name: docker login
-        run: docker login -u liangrog -p ${{ secrets.dockerhub }}
+        run: docker login -u autermann -p ${{ secrets.dockerhub }}
       - name: push tag latest 
-        run: docker push liangrog/admission-webhook-server:latest
+        run: docker push autermann/admission-webhook-server:latest
       - name: push tag versioned
-        run: docker push liangrog/admission-webhook-server:${{ steps.get_version.outputs.VERSION }}
+        run: docker push autermann/admission-webhook-server:${{ steps.get_version.outputs.VERSION }}
