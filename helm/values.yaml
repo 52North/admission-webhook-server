@@ -1,6 +1,6 @@
 ---
 # Override resource name
-#nameOverride
+nameOverride: admission-webhook-server
 
 # Override url base path. Default to mutate
 #basePathOverride:
