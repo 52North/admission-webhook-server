@@ -12,8 +12,8 @@ import (
 	"net/http"
 
 	"github.com/liangrog/admission-webhook-server/pkg/utils"
-	"k8s.io/api/admission/v1beta1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	admissionV1 "k8s.io/api/admission/v1"
+	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 )
@@ -41,7 +41,7 @@ type PatchOperation struct {
 
 // admitFunc is a callback for admission controller logic. Given an AdmissionRequest, it returns the sequence of patch
 // operations to be applied in case of success, or the error that will be shown when the operation is rejected.
-type AdmitFunc func(*v1beta1.AdmissionRequest) ([]PatchOperation, error)
+type AdmitFunc func(*admissionV1.AdmissionRequest) ([]PatchOperation, error)
 
 // Get server base path
 func GetBasePath() string {
@@ -50,7 +50,7 @@ func GetBasePath() string {
 
 // isKubeNamespace checks if the given namespace is a Kubernetes-owned namespace.
 func isKubeNamespace(ns string) bool {
-	return ns == metav1.NamespacePublic || ns == metav1.NamespaceSystem
+	return ns == metaV1.NamespacePublic || ns == metaV1.NamespaceSystem
 }
 
 // doServeAdmitFunc parses the HTTP request for an admission controller webhook, and -- in case of a well-formed
@@ -77,7 +77,7 @@ func doServeAdmitFunc(w http.ResponseWriter, r *http.Request, adm AdmitFunc) ([]
 
 	// Step 2: Parse the AdmissionReview request.
 
-	var admissionReviewReq v1beta1.AdmissionReview
+	var admissionReviewReq admissionV1.AdmissionReview
 
 	if _, _, err := UniversalDeserializer.Decode(body, nil, &admissionReviewReq); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -89,8 +89,8 @@ func doServeAdmitFunc(w http.ResponseWriter, r *http.Request, adm AdmitFunc) ([]
 
 	// Step 3: Construct the AdmissionReview response.
 
-	admissionReviewResponse := v1beta1.AdmissionReview{
-		Response: &v1beta1.AdmissionResponse{
+	admissionReviewResponse := admissionV1.AdmissionReview{
+		Response: &admissionV1.AdmissionResponse{
 			UID: admissionReviewReq.Request.UID,
 		},
 	}
@@ -106,7 +106,7 @@ func doServeAdmitFunc(w http.ResponseWriter, r *http.Request, adm AdmitFunc) ([]
 		// If the handler returned an error, incorporate the error message into the response and deny the object
 		// creation.
 		admissionReviewResponse.Response.Allowed = false
-		admissionReviewResponse.Response.Result = &metav1.Status{
+		admissionReviewResponse.Response.Result = &metaV1.Status{
 			Message: err.Error(),
 		}
 	} else {

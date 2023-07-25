@@ -5,7 +5,6 @@
 package podnodesselector
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,9 +14,9 @@ import (
 
 	"github.com/liangrog/admission-webhook-server/pkg/admission/admit"
 	"github.com/liangrog/admission-webhook-server/pkg/utils"
-	"k8s.io/api/admission/v1beta1"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	admissionV1 "k8s.io/api/admission/v1"
+	coreV1 "k8s.io/api/core/v1"
+	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 )
 
@@ -34,12 +33,12 @@ const (
 	//   namespace:label-name=label-value,label-name=label-value;namespace:label-name=label-value
 	ENV_POD_NODES_SELECTOR_CONFIG = "POD_NODES_SELECTOR_CONFIG"
 
-	namespaceSeperator      = ";"
-	namespaceLabelSeperator = ":"
+	namespaceSeparator      = ";"
+	namespaceLabelSeparator = ":"
 )
 
 var (
-	podResource = metav1.GroupVersionResource{Version: "v1", Resource: "pods"}
+	podResource = metaV1.GroupVersionResource{Version: "v1", Resource: "pods"}
 )
 
 // Register handler to server
@@ -59,7 +58,7 @@ func Register(mux *http.ServeMux) {
 }
 
 // Handling pod node selector request
-func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
+func handler(req *admissionV1.AdmissionRequest) ([]admit.PatchOperation, error) {
 	if req.Resource != podResource {
 		log.Printf("Ignore admission request %s as it's not a pod resource", string(req.UID))
 		return nil, nil
@@ -67,7 +66,7 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 
 	// Parse the Pod object.
 	raw := req.Object.Raw
-	pod := corev1.Pod{}
+	pod := coreV1.Pod{}
 	if _, _, err := admit.UniversalDeserializer.Decode(raw, nil, &pod); err != nil {
 		return nil, fmt.Errorf("could not deserialize pod object: %v", err)
 	}
@@ -91,7 +90,7 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 			}
 
 			if labels.Conflicts(labelSet, labels.Set(pod.Spec.NodeSelector)) {
-				return patches, errors.New(fmt.Sprintf("pod node label selector conflicts with its namespace node label selector for pod %s", podName))
+				return patches, fmt.Errorf("pod node label selector conflicts with its namespace node label selector for pod %s", podName)
 			}
 
 			podNodeSelectorLabels := labels.Merge(labelSet, labels.Set(pod.Spec.NodeSelector))
@@ -121,8 +120,8 @@ func getConfiguredSelectorMap() (map[string]labels.Set, error) {
 	}
 
 	selectors := make(map[string]labels.Set)
-	for _, ns := range strings.Split(os.Getenv(ENV_POD_NODES_SELECTOR_CONFIG), namespaceSeperator) {
-		conf := strings.Split(ns, namespaceLabelSeperator)
+	for _, ns := range strings.Split(os.Getenv(ENV_POD_NODES_SELECTOR_CONFIG), namespaceSeparator) {
+		conf := strings.Split(ns, namespaceLabelSeparator)
 
 		// If no namespace name or label not set, move on
 		if len(conf) != 2 || len(conf[0]) == 0 || len(conf[1]) == 0 {

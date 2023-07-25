@@ -15,9 +15,9 @@ import (
 
 	"github.com/liangrog/admission-webhook-server/pkg/admission/admit"
 	"github.com/liangrog/admission-webhook-server/pkg/utils"
-	"k8s.io/api/admission/v1beta1"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	admissionV1 "k8s.io/api/admission/v1"
+	coreV1 "k8s.io/api/core/v1"
+	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
@@ -29,7 +29,7 @@ const (
 )
 
 var (
-	podResource = metav1.GroupVersionResource{Version: "v1", Resource: "pods"}
+	podResource = metaV1.GroupVersionResource{Version: "v1", Resource: "pods"}
 )
 
 // Register handler to server
@@ -47,7 +47,7 @@ func Register(mux *http.ServeMux) {
 }
 
 // Handling pod toleration restriction request
-func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
+func handler(req *admissionV1.AdmissionRequest) ([]admit.PatchOperation, error) {
 	if req.Resource != podResource {
 		log.Printf("Ignore admission request %s as it's not a pod resource", string(req.UID))
 		return nil, nil
@@ -55,7 +55,7 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 
 	// Parse the Pod object.
 	raw := req.Object.Raw
-	pod := corev1.Pod{}
+	pod := coreV1.Pod{}
 	if _, _, err := admit.UniversalDeserializer.Decode(raw, nil, &pod); err != nil {
 		return nil, fmt.Errorf("could not deserialize pod object: %v", err)
 	}
@@ -100,10 +100,10 @@ func handler(req *v1beta1.AdmissionRequest) ([]admit.PatchOperation, error) {
 }
 
 // Get configuration map
-func getConfiguredTolerationsMap() (map[string][]corev1.Toleration, error) {
+func getConfiguredTolerationsMap() (map[string][]coreV1.Toleration, error) {
 	// Don't process if no configuration is set
 	s := os.Getenv(ENV_POD_TOLERATION_RESTRICTION_CONFIG)
-	tolerations := map[string][]corev1.Toleration{}
+	tolerations := map[string][]coreV1.Toleration{}
 	if s != "" {
 		if err := json.Unmarshal([]byte(s), &tolerations); err != nil {
 			return nil, err

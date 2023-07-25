@@ -1,5 +1,5 @@
 ---
-apiVersion: admissionregistration.k8s.io/v1beta1
+apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration 
 metadata:
   name: {{ template "helper.fullname" . }}
@@ -7,6 +7,8 @@ metadata:
 {{- include "helper.labels" . | indent 4 }}
 webhooks:
 - name: "pod-nodes-selector.{{ template "helper.webhook-server-name" . }}"
+  admissionReviewVersions: [v1]
+  sideEffects: None
   clientConfig: 
     service:
       namespace: {{ .Release.Namespace }}
@@ -23,6 +25,8 @@ webhooks:
     resources:
     - pods
 - name: "pod-toleration-restriction.{{ template "helper.webhook-server-name" . }}"
+  admissionReviewVersions: [v1]
+  sideEffects: None
   clientConfig: 
     service:
       namespace: {{ .Release.Namespace }}
