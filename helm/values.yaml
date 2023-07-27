@@ -5,10 +5,6 @@ nameOverride: admission-webhook-server
 # Override url base path. Default to mutate
 #basePathOverride:
 
-# PodNodesSelector   
-# Override podnodeselector handler path. Default to pod-nodes-selector
-#podNodesSelectorPathOverride: 
-
 # Confiruation for podnodesselector. The namespace and labels are set here following the format:
 #   namespace: key=label,key=label; namespace2: key=label
 # Note: Multiple namespaces seperate by ;
@@ -25,8 +21,6 @@ podTolerationRestrictionConfig: |
       {"operator": "Equal", "effect": "NoExecute", "key": "52north.org/reserved-for", "value": "demo-gaia-x" }
     ]
   }
-
-#podTolerationRestrictionPathOverride:
 
 service:
   # the service is important. It forms part of the CN for SSL certificate. 

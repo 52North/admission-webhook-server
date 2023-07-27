@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"github.com/52north/admission-webhook-server/pkg/admission/admit"
 	"github.com/52north/admission-webhook-server/pkg/admission/podnodesselector"
 	"github.com/52north/admission-webhook-server/pkg/admission/podtolerationrestriction"
 	"github.com/52north/admission-webhook-server/pkg/utils"
@@ -28,9 +29,11 @@ func main() {
 	key := filepath.Join(tlsDir, tlsKey)
 
 	mux := http.NewServeMux()
+	ctrl := admit.New()
+	mux.Handle(admit.GetBasePath(), ctrl)
+	registerAllHandlers(ctrl)
 
 	log.Print("Registering handlers...")
-	registerAllHandlers(mux)
 
 	// Config server
 	server := &http.Server{
@@ -44,7 +47,7 @@ func main() {
 }
 
 // Register all admission handlers
-func registerAllHandlers(mux *http.ServeMux) {
-	podnodesselector.Register(mux)
-	podtolerationrestriction.Register(mux)
+func registerAllHandlers(ctrl admit.AdmissionController) {
+	podnodesselector.Register(ctrl)
+	podtolerationrestriction.Register(ctrl)
 }

@@ -53,10 +53,29 @@ func isKubeNamespace(ns string) bool {
 	return ns == metaV1.NamespacePublic || ns == metaV1.NamespaceSystem
 }
 
+type AdmissionController interface {
+	http.Handler
+	Register(name string, adm AdmitFunc)
+}
+
+type admissionController struct {
+	admitFuncs []AdmitFunc
+}
+
+func New() AdmissionController {
+	return &admissionController{}
+}
+
+// Register registers a new AdmitFunc at this controller.
+func (ac *admissionController) Register(name string, adm AdmitFunc) {
+	log.Printf("registering %s", name)
+	ac.admitFuncs = append(ac.admitFuncs, adm)
+}
+
 // doServeAdmitFunc parses the HTTP request for an admission controller webhook, and -- in case of a well-formed
 // request -- delegates the admission control logic to the given admitFunc. The response body is then returned as raw
 // bytes.
-func doServeAdmitFunc(w http.ResponseWriter, r *http.Request, adm AdmitFunc) ([]byte, error) {
+func (ac *admissionController) doServeAdmitFunc(w http.ResponseWriter, r *http.Request) ([]byte, error) {
 	// Step 1: Request validation. Only handle POST requests with a body and json content type.
 
 	if r.Method != http.MethodPost {
@@ -99,16 +118,21 @@ func doServeAdmitFunc(w http.ResponseWriter, r *http.Request, adm AdmitFunc) ([]
 	// Apply the admit() function only for non-Kubernetes namespaces. For objects in Kubernetes namespaces, return
 	// an empty set of patch operations.
 	if !isKubeNamespace(admissionReviewReq.Request.Namespace) {
-		patchOps, err = adm(admissionReviewReq.Request)
+		for _, adm := range ac.admitFuncs {
+			if patches, err := adm(admissionReviewReq.Request); err != nil {
+				break
+			} else {
+				patchOps = append(patchOps, patches...)
+			}
+		}
+
 	}
 
 	if err != nil {
 		// If the handler returned an error, incorporate the error message into the response and deny the object
 		// creation.
 		admissionReviewResponse.Response.Allowed = false
-		admissionReviewResponse.Response.Result = &metaV1.Status{
-			Message: err.Error(),
-		}
+		admissionReviewResponse.Response.Result = &metaV1.Status{Message: err.Error()}
 	} else {
 		// Otherwise, encode the patch operations to JSON and return a positive response.
 		patchBytes, err := json.Marshal(patchOps)
@@ -131,27 +155,19 @@ func doServeAdmitFunc(w http.ResponseWriter, r *http.Request, adm AdmitFunc) ([]
 }
 
 // serveAdmitFunc is a wrapper around doServeAdmitFunc that adds error handling and logging.
-func serveAdmitFunc(w http.ResponseWriter, r *http.Request, adm AdmitFunc) {
+func (ac *admissionController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	//log.Print("Handling webhook request ...")
 
 	var writeErr error
-	if bytes, err := doServeAdmitFunc(w, r, adm); err != nil {
+	if bytes, err := ac.doServeAdmitFunc(w, r); err != nil {
 		log.Printf("Error handling webhook request: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		_, writeErr = w.Write([]byte(err.Error()))
 	} else {
-		//log.Print("Webhook request handled successfully")
 		_, writeErr = w.Write(bytes)
 	}
 
 	if writeErr != nil {
 		log.Printf("Could not write response: %v", writeErr)
 	}
-}
-
-// admitFuncHandler takes an admitFunc and wraps it into a http.Handler by means of calling serveAdmitFunc.
-func AdmitFuncHandler(adm AdmitFunc) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		serveAdmitFunc(w, r, adm)
-	})
 }

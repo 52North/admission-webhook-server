@@ -7,13 +7,9 @@ package podnodesselector
 import (
 	"fmt"
 	"log"
-	"net/http"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/52north/admission-webhook-server/pkg/admission/admit"
-	"github.com/52north/admission-webhook-server/pkg/utils"
 	admissionV1 "k8s.io/api/admission/v1"
 	coreV1 "k8s.io/api/core/v1"
 	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -22,10 +18,6 @@ import (
 
 const (
 	handlerName = "PodNodesSelector"
-
-	// Path for kube api server to call
-	ENV_POD_NODES_SELECTOR_PATH = "POD_NODES_SELECTOR_PATH"
-	podNodesSelectorPath        = "pod-nodes-selector"
 
 	// Configuration for specify nodes to namespace.
 	// The string format for each namespace follows https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/apimachinery/pkg/labels/labels.go
@@ -41,20 +33,8 @@ var (
 	podResource = metaV1.GroupVersionResource{Version: "v1", Resource: "pods"}
 )
 
-// Register handler to server
-func Register(mux *http.ServeMux) {
-	// Sub path
-	pdsPath := filepath.Join(
-		admit.GetBasePath(),
-		utils.GetEnvVal(ENV_POD_NODES_SELECTOR_PATH, podNodesSelectorPath),
-	)
-
-	mux.Handle(
-		pdsPath,
-		admit.AdmitFuncHandler(handler),
-	)
-
-	log.Printf("%s registered using path %s", handlerName, pdsPath)
+func Register(ctrl admit.AdmissionController) {
+	ctrl.Register(handlerName, handler)
 }
 
 // Handling pod node selector request
@@ -110,31 +90,4 @@ func handler(req *admissionV1.AdmissionRequest) ([]admit.PatchOperation, error) 
 	}
 
 	return patches, nil
-}
-
-// Get configuration map
-func getConfiguredSelectorMap() (map[string]labels.Set, error) {
-	// Don't process if no configuration is set
-	if len(os.Getenv(ENV_POD_NODES_SELECTOR_CONFIG)) == 0 {
-		return nil, nil
-	}
-
-	selectors := make(map[string]labels.Set)
-	for _, ns := range strings.Split(os.Getenv(ENV_POD_NODES_SELECTOR_CONFIG), namespaceSeparator) {
-		conf := strings.Split(ns, namespaceLabelSeparator)
-
-		// If no namespace name or label not set, move on
-		if len(conf) != 2 || len(conf[0]) == 0 || len(conf[1]) == 0 {
-			continue
-		}
-
-		set, err := labels.ConvertSelectorToLabelsMap(conf[1])
-		if err != nil {
-			return nil, err
-		}
-
-		selectors[conf[0]] = set
-	}
-
-	return selectors, nil
 }

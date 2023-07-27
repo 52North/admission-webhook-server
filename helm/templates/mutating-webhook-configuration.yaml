@@ -6,7 +6,7 @@ metadata:
   labels:
 {{- include "helper.labels" . | indent 4 }}
 webhooks:
-- name: "pod-nodes-selector.{{ template "helper.webhook-server-name" . }}"
+- name: "mutate.{{ template "helper.webhook-server-name" . }}"
   admissionReviewVersions: [v1]
   sideEffects: None
   {{- if .Values.namespaceSelector }}
@@ -17,30 +17,7 @@ webhooks:
     service:
       namespace: {{ .Release.Namespace }}
       name: {{ .Values.service.name }}
-      path: '/{{ default "mutate" .Values.basePathOverride }}/{{ default "pod-nodes-selector" .Values.podNodesSelectorPathOverride }}' 
-    caBundle: '{{ .Files.Get "ssl/ca.crt" | b64enc }}'
-  rules: 
-  - operations: 
-    - CREATE
-    apiGroups:
-    - ""
-    apiVersions:
-    - "*"
-    resources:
-    - pods
-- name: "pod-toleration-restriction.{{ template "helper.webhook-server-name" . }}"
-  admissionReviewVersions: [v1]
-  sideEffects: None
-  {{- if .Values.namespaceSelector }}
-  namespaceSelector:
-{{ toYaml .Values.namespaceSelector | indent 4 }}
-  {{- end }}
-  namespaceSelector:
-  clientConfig: 
-    service:
-      namespace: {{ .Release.Namespace }}
-      name: {{ .Values.service.name }}
-      path: '/{{ default "mutate" .Values.basePathOverride }}/{{ default "pod-toleration-restriction" .Values.podTolerationRestrictionPathOverride }}' 
+      path: '/{{ default "mutate" .Values.basePathOverride }}' 
     caBundle: '{{ .Files.Get "ssl/ca.crt" | b64enc }}'
   rules: 
   - operations: 

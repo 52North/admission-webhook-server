@@ -22,7 +22,7 @@ spec:
 {{ toYaml .Values.nodeSelector | indent 8 }}
       {{- end }}
       {{- if .Values.tolerations }}
-      nodeSelector:
+      tolerations:
 {{ toYaml .Values.tolerations | indent 8 }}
       {{- end }}
       containers:
@@ -34,19 +34,11 @@ spec:
         - name: BASE_PATH
           value: {{ .Values.basePathOverride | quote }}
         {{- end }}
-        {{- if .Values.podNodesSelectorPathOverride }}
-        - name: POD_NODES_SELECTOR_PATH
-          value: {{ .Values.podNodesSelectorPathOverride | quote }}
-        {{- end }}
         - name: POD_NODES_SELECTOR_CONFIG
           valueFrom:
             configMapKeyRef:
               name: {{ template "helper.fullname" . }}-config
               key: podNodeSelectorConfig
-        {{- if .Values.podTolerationRestrictionPathOverride }}
-        - name: POD_TOLERATION_RESTRICTION_PATH
-          value: {{ .Values.podTolerationRestrictionPathOverride | quote }}
-        {{- end }}
         - name: POD_TOLERATION_RESTRICTION_CONFIG
           valueFrom:
             configMapKeyRef:
