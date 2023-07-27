@@ -25,10 +25,7 @@ clean:
 fast:
 	go build -o ${APPNAME} ${LDFLAGS}
 
-docker_binary:
-	CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o $(APPNAME) ${LDFLAGS} .
-
 docker_build:
 	docker build . -f $(DOCKERFILE) -t $(IMAGE_NAME) --no-cache
 
-docker: docker_binary docker_build
+docker: docker_build
