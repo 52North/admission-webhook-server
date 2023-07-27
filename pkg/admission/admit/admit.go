@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 
@@ -83,7 +83,7 @@ func (ac *admissionController) doServeAdmitFunc(w http.ResponseWriter, r *http.R
 		return nil, fmt.Errorf("invalid method %s, only POST requests are allowed", r.Method)
 	}
 
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return nil, fmt.Errorf("could not read request body: %v", err)
@@ -108,7 +108,9 @@ func (ac *admissionController) doServeAdmitFunc(w http.ResponseWriter, r *http.R
 
 	// Step 3: Construct the AdmissionReview response.
 
-	admissionReviewResponse := admissionV1.AdmissionReview{
+	admissionReviewResponse := &admissionV1.AdmissionReview{
+		TypeMeta: admissionReviewReq.TypeMeta,
+		Request:  admissionReviewReq.Request,
 		Response: &admissionV1.AdmissionResponse{
 			UID: admissionReviewReq.Request.UID,
 		},
@@ -143,10 +145,12 @@ func (ac *admissionController) doServeAdmitFunc(w http.ResponseWriter, r *http.R
 
 		admissionReviewResponse.Response.Allowed = true
 		admissionReviewResponse.Response.Patch = patchBytes
+		patchType := admissionV1.PatchTypeJSONPatch
+		admissionReviewResponse.Response.PatchType = &patchType
 	}
 
 	// Return the AdmissionReview with a response as JSON.
-	bytes, err := json.Marshal(&admissionReviewResponse)
+	bytes, err := json.Marshal(admissionReviewResponse)
 	if err != nil {
 		return nil, fmt.Errorf("marshaling response: %v", err)
 	}

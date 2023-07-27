@@ -1,14 +1,16 @@
----
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration 
 metadata:
   name: {{ template "helper.fullname" . }}
   labels:
 {{- include "helper.labels" . | indent 4 }}
+  annotations:
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace}}/{{ template "helper.fullname" . }}-certificate
 webhooks:
 - name: "mutate.{{ template "helper.webhook-server-name" . }}"
   admissionReviewVersions: [v1]
   sideEffects: None
+  failurePolicy: Ignore
   {{- if .Values.namespaceSelector }}
   namespaceSelector:
 {{ toYaml .Values.namespaceSelector | indent 4 }}

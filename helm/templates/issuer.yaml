@@ -1,0 +1,9 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ template "helper.fullname" . }}-issuer
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{- include "helper.labels" . | indent 4 }}
+spec:
+  selfSigned: {}

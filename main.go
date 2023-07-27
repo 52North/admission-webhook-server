@@ -31,9 +31,8 @@ func main() {
 	mux := http.NewServeMux()
 	ctrl := admit.New()
 	mux.Handle(admit.GetBasePath(), ctrl)
-	registerAllHandlers(ctrl)
-
 	log.Print("Registering handlers...")
+	registerAllHandlers(ctrl)
 
 	// Config server
 	server := &http.Server{

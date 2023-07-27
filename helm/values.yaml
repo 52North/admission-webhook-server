@@ -1,16 +1,16 @@
----
+
 # Override resource name
 nameOverride: admission-webhook-server
 
 # Override url base path. Default to mutate
 #basePathOverride:
 
-# Confiruation for podnodesselector. The namespace and labels are set here following the format:
+# Configuration for podnodesselector. The namespace and labels are set here following the format:
 #   namespace: key=label,key=label; namespace2: key=label
-# Note: Multiple namespaces seperate by ;
+# Note: Multiple namespaces separate by ;
 #
 # Examples:
-#   devel: node-role.kubernetes.io/development=true, beta.kubernetes.io/instance-type=t3.large
+#   develop: node-role.kubernetes.io/development=true, beta.kubernetes.io/instance-type=t3.large
 podNodesSelectorConfig: |
   demo-gaia-x: 52north.org/context=demo-gaia-x
 
@@ -51,5 +51,8 @@ imageTag: latest
 imagePullPolicy: Always 
 
 namespaceSelector:
-  matchLabels:
-    admission.52north.org/mutation: "true"
+  matchExpressions:
+    - key: kubernetes.io/metadata.name
+      operator: In
+      values:
+      - demo-gaia-x

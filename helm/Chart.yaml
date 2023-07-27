@@ -2,11 +2,10 @@ apiVersion: v1
 name: admission-webhook-server
 version: 0.0.1
 appVersion: 0.0.1
-description: 
+description: ""
 keywords:
 - admission controller
 - webhook
 home: https://github.com/52north/admission-webhook-server
 sources:
 - https://github.com/52north/admission-webhook-server
-engine: gotpl

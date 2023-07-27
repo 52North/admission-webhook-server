@@ -3,4 +3,4 @@ helm/
 admitCtlr
 Makefile
 README.md
-ssh.sh
+.vscode

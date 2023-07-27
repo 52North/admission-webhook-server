@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ template "helper.fullname" . }}-certificate
+  namespace: {{ .Release.Namespace}}
+  labels:
+{{- include "helper.labels" . | indent 4 }}
+spec:
+  secretName: {{ template "helper.fullname" . }}-tls
+  dnsNames:
+  - {{.Values.service.name}}.{{ .Release.Namespace }}.svc.cluster.local
+  - {{.Values.service.name}}.{{ .Release.Namespace }}.svc
+  - {{.Values.service.name}}.{{ .Release.Namespace }}
+  issuerRef:
+    name: {{ template "helper.fullname" . }}-issuer
