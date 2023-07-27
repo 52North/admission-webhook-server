@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/autermann/admission-webhook-server/pkg/admission/podnodesselector"
-	"github.com/autermann/admission-webhook-server/pkg/admission/podtolerationrestriction"
-	"github.com/autermann/admission-webhook-server/pkg/utils"
+	"github.com/52north/admission-webhook-server/pkg/admission/podnodesselector"
+	"github.com/52north/admission-webhook-server/pkg/admission/podtolerationrestriction"
+	"github.com/52north/admission-webhook-server/pkg/utils"
 )
 
 // TLS secrets

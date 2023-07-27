@@ -1,4 +1,4 @@
-module github.com/autermann/admission-webhook-server
+module github.com/52north/admission-webhook-server
 
 go 1.20
 

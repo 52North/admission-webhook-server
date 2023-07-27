@@ -22,10 +22,10 @@ jobs:
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - name: tag image
-        run: docker tag autermann/admission-webhook-server:latest autermann/admission-webhook-server:${{ steps.get_version.outputs.VERSION }}
+        run: docker tag 52north/admission-webhook-server:latest 52north/admission-webhook-server:${{ steps.get_version.outputs.VERSION }}
       - name: docker login
-        run: docker login -u autermann -p ${{ secrets.dockerhub }}
+        run: docker login -u 52north -p ${{ secrets.dockerhub }}
       - name: push tag latest 
-        run: docker push autermann/admission-webhook-server:latest
+        run: docker push 52north/admission-webhook-server:latest
       - name: push tag versioned
-        run: docker push autermann/admission-webhook-server:${{ steps.get_version.outputs.VERSION }}
+        run: docker push 52north/admission-webhook-server:${{ steps.get_version.outputs.VERSION }}

@@ -52,7 +52,7 @@ tolerations:
   key: 52north.org/reserved-for
   value: demo-gaia-x
 
-image: autermann/admission-webhook-server
+image: 52north/admission-webhook-server
 imageTag: latest
 imagePullPolicy: Always 
 

@@ -1,7 +1,7 @@
 # Makefile
 
 APPNAME=admitCtlr
-IMAGE_NAME=autermann/admission-webhook-server
+IMAGE_NAME=52north/admission-webhook-server
 
 DOCKERFILE=Dockerfile
 
