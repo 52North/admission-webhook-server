@@ -34,17 +34,17 @@ strategy:
   type: RollingUpdate
 
 nodeSelector:
-  52north.org/context: demo-gaia-x
+  #52north.org/context: demo-gaia-x
 
 tolerations:
-- operator: Equal
-  effect: NoSchedule
-  key: 52north.org/reserved-for
-  value: demo-gaia-x
-- operator: Equal
-  effect: NoExecute
-  key: 52north.org/reserved-for
-  value: demo-gaia-x
+#- operator: Equal
+#  effect: NoSchedule
+#  key: 52north.org/reserved-for
+#  value: demo-gaia-x
+#- operator: Equal
+#  effect: NoExecute
+#  key: 52north.org/reserved-for
+#  value: demo-gaia-x
 
 image: 52north/admission-webhook-server
 imageTag: latest
