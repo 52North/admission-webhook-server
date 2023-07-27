@@ -55,3 +55,7 @@ tolerations:
 image: autermann/admission-webhook-server
 imageTag: latest
 imagePullPolicy: Always 
+
+namespaceSelector:
+  matchLabels:
+    admission.52north.org/mutation: "true"
